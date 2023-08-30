@@ -8,17 +8,17 @@ class Event:
 		self.event_id = event_id
 		self.event_name = event_name
 		self.location = location
-		self.event_date = event_date
+		self.__event_date = event_date
 		self.allow_parking = allow_parking
 
 	@property
 	def event_date(self):
-		return self.__event_date.strftime("%d-%m-%Y")
+		return self.__event_date
 
 	@event_date.setter
 	def event_date(self, event_date):
-		format_date = datetime.strptime(event_date, "%d-%m-%Y")
-		self.__event_date = format_date
+		datetime.strptime(event_date, "%d-%m-%Y")
+		self.__event_date = event_date
 
 	def display(self):
 		print(f'The event is <{self.event_name}> which will be held at {self.location} on {self.event_date}.')
