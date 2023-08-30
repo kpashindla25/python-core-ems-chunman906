@@ -118,7 +118,11 @@ class EventSystem(System):
 		while True:
 			event_name = str(input('Enter the event name: '))
 			location = str(input('Where is the location to hold the event? '))
-			event_date = input('When is the event date? ')
+			try:
+				event_date = self.check_date(input('When is the event date? '))
+			except ValueError:
+				print("Invalid date format. Expected DD-MM-YYYY")
+				continue
 			allow_parking = input('Is there car parking available? Input True or False: ')
 			try:
 				allow_parking = check_boolean(allow_parking)
@@ -194,6 +198,13 @@ class EventSystem(System):
 		finally:
 			file.close()
 
+	def check_date(self, input_date):
+		try:
+			datetime.strptime(input_date, "%d-%m-%Y")
+			return input_date
+		except ValueError:
+			raise ValueError
+
 
 class AttendeeSystem(System):
 	def __init__(self, file):
@@ -202,24 +213,22 @@ class AttendeeSystem(System):
 		self.att_id = 0
 		self.load_file()
 
-	def check_age(self, age):
-		if isinstance(age, int):
-			return age
-		else:
-			raise ValueError('Expected the age is integer value! Try again.')
-
 # Add attendees into the event
 	def add(self, attendee):
 		self.attendee_list = attendee
 
 	def create_attendee(self):
 		while True:
-			event_id = str(input('Which event are you attending? input Event ID: '))
+			try:
+				event_id = self.check_id(int(input('Which event are you attending? input Event ID: ')))
+			except ValueError and Exception:
+				print('Expected the event ID is integer value / existing ID! Try again.')
+				continue
 			name = str(input('What is the name of the attendee? '))
 			gender = str(input('What is the gender of the attendee? M / F : '))
 			email = str(input('What is the contact email? '))
 			try:
-				age = int(input(('What is the age? ')))
+				age = int(input('What is the age? '))
 				# age = self.check_age(int(input(('What is the age? ')))
 			except ValueError:
 				print('Expected the age is integer value! Try again.')
@@ -320,6 +329,21 @@ class AttendeeSystem(System):
 		finally:
 			file.close()
 
+	def check_age(self, age):
+		if isinstance(age, int):
+			return age
+		else:
+			raise ValueError('Expected the age is integer value! Try again.')
+
+# Custom method for checking the event ID for attendee creation
+	def check_id(self, input_id):
+		if isinstance(input_id, int):
+			if input_id <= app.eventsystem.event_id:
+				return str(input_id)
+			else:
+				raise Exception
+		else:
+			raise ValueError
 
 # Master control panel
 class Router:
@@ -332,7 +356,7 @@ class Router:
 		self.logo()
 		self.command_view()
 		while self.running:
-			choice = input('Please input the instruction of what you need to do. Type the number for above option: \n')
+			choice = input('Please input the instruction of what you need to do. Type the <number> for above option: \n')
 			if choice == '1':
 				self.eventsystem.list_events()
 			elif choice == '2':
@@ -382,6 +406,7 @@ def check_boolean(user_input):
 		return False
 	else:
 		raise ValueError('Expected boolean value: True / False! ')
+
 
 
 # Start the application
